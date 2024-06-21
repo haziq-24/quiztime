@@ -1,0 +1,133 @@
+now before to Ui design, first let's male some constant variables.
+- create a separate file.
+
+
+let's start creating our homepage.
+let's delete all the default code and start from scratch.
+
+- let's start work on Ui 
+- change the background color and the appbar first.
+- import the constant.dart in our homepage.(because it has our color)
+
+- let's add some demo question.
+
+- now let's create our question widget.
+- let's add it to our homepage.
+- change the styling of question.
+- with that our question widget is ready.
+
+
+next i'm gonna create the 'next question' button.
+- add it to floating action button.
+- let's add some funtionalities to it.
+- like when we click the next question will show.
+- to do that we need to pass a funtion that does all the work.
+- we have an error because when i clicked it second time, the index went from 1 to 2. in the list we have
+  only 2 questions (0,1). so it didn't fine the third.
+- to fix that add some conditions.
+  and now it's fixed. now if it finds that the list has ended, it will nothing.
+
+next let's add the option.
+- let's create our custom button widget for an option.
+- let's add to homescreen.
+- make it clickable.
+- we also need to change the color when clicked.
+- now that's cheating. We can't let user know the answer even before he select anything. 
+- let's add some conditions about it. if user has clicked then change the color otherwise don't change the color.
+- now that's fixed but we have to add a funtion for when teh isPressed a change.
+- now here's is another problem when we click the next question, the value of 
+  is isPressed is unchanged so it shows all the answer like before.
+- let's fix that, we do it in 'nextQuestion' function.
+- that's fixed now. on to next part.
+
+noe there is a little problem here.
+you see that when a user clicks the next button then he can go to the next 
+question even though he didn't select any options. We don't want that. We want if 
+a user didn't select any option the app will show a message that he has to select
+at least one option to cauntinue. Let's do it.
+- at that's fixed now.
+
+- let's ad some score to show in our app.
+   let's add some funtionalities to increase the value o our score.
+   when the user answer correctly of a question then the score will go up by 1 point.
+   - Let's remove the gesture detector from inside of optioncard and put it in parent widget.
+   - Ant that's problem. it increase even though the user already select once.
+     let's fix that. 
+     let's make it's value to false on next question.
+     okay it's working fine now.
+
+
+- alright everything is good so far but, i want to change something.
+  you see when the color of our optioncard changes the Text on the read
+  area is a little hard to read.
+  I want to make it so when the color changes the color of our text will change too.
+  so how did that work.
+  255, 36, 201, 74
+  255, 236, 36, 36
+  these two colors have same combination of blue:
+  so if teh color we provide here doesn't have teh same combination of 'red'
+  and 'green' then it's neutral color we created before, and teh text colorwill become 
+  black and if the 'red' and 'green' are the same it's either 
+  'red' or 'green' color(to sum it up it's a darker color) then, it's gonna display our 'neutral' color.
+  sorry if you got confused, play with the colors and you will get it.
+
+
+- now let's create a result box at teh end of our quiz. its's gonna show the
+  result of user.
+    let's create our dialog box in a separate file.
+    that's our resultbox.
+
+
+- now let's add a button to start quiz from start.
+     now we need a funtion to do the work
+     we will create that in homescreen.dart.
+
+- looks like we have another problem here, we can't select the wrong one.
+- that's fixed it.
+
+- let's start working on database.
+   go to 'firebase.google.com'
+   you have to log in to use the firebase services.
+   once logged in, click on 'go to console' and then create a project.
+   once create, then click on 'realtime database'
+   create a database in 'test mode'.
+
+   - let's make a separate file for database actions.
+        to connect to database, firebase has it's own package for flutter, but that's to 
+        advance subject, so we will use the lightweight 'http' package.
+        enter 'flutter pub add http' in terminal
+
+let's start creating our funtions.
+firebase understands json data so we have to convert our questions to .json format.
+to do that we use another package called 'convert' which is build in 'dart'.
+
+  let's try to add a question in database.
+     - create an object for 'DBconnect' class in main.dart and add a question.
+     - hot restart to run the main method.
+     - that's how you add question in database.
+
+
+- lets fetch the questions from the database.
+use the same method we used to add question.
+that's how you fecth questions from database.
+
+
+- let's add more data to database. 
+    - ok let's tro to fecth these.
+    - the funtions is already there. so just hot restart it.
+    - so we can see the questions we added.
+
+
+- time to display teh questions from our database in our app.
+     - first of all, when we fecth the data from our database it's in a 'Map<dynamic,dynamic>' 
+      format. we have to convert it to 'Map<String,
+      dynamic>'.
+
+
+      - then we need each 'key, value' pair to a question.
+      - then we need some place to save these questions we created.
+      - this error occured because our 'options' is in Map<String, dynamic> format.
+        we need that inn Map<String, bool> format.
+        to convert it use Map.caste method.
+
+- now we need to replace the in app questions we fecthed from database.
