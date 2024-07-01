@@ -1,18 +1,17 @@
 // import the material package
 import 'package:flutter/material.dart';
-import 'package:quiz_app/models/question_model.dart';
+
 import './screens/home_screen.dart'; // the file we just create
-import './models/db_connect.dart';
+
 
 // run the main method
-void main()  {
-   // Wait for data to be fetched
+void main() {
+  
 
   runApp(
     const MyApp(),
   );
 }
-
 
 // create the MyApp widget
 class MyApp extends StatelessWidget {

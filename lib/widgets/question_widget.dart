@@ -3,11 +3,10 @@ import '../constants.dart';
 
 class QuestionWidget extends StatelessWidget {
   const QuestionWidget(
-      {Key? key,
+      {super.key,
       required this.question,
       required this.indexAction,
-      required this.totalQuestions})
-      :super(key: key);
+      required this.totalQuestions});
   // here we need the question title and the total number of questions, and also teh index
 
 

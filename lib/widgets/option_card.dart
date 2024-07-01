@@ -3,11 +3,10 @@ import '../constants.dart';
 
 class OptionCard extends StatelessWidget {
   const OptionCard(
-      {Key? key,
+      {super.key,
       required this.option,
       required this.color,
-      })
-      : super(key: key);
+      });
   final String option;
   final Color color;
   @override
@@ -19,7 +18,7 @@ class OptionCard extends StatelessWidget {
           option,
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 22.0,
+            fontSize: 18.0,
             color: color.red != color.green ? neutral : Colors.black,
           ),
         ),

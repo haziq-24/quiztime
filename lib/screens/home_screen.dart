@@ -1,3 +1,7 @@
+// ignore_for_file: library_private_types_in_public_api
+
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../models/question_model.dart';
 import '../widgets/result_box.dart';
@@ -5,6 +9,7 @@ import '../constants.dart';
 import '../widgets/question_widget.dart';
 import '../widgets/next_button.dart';
 import '../widgets/option_card.dart';
+import '../models/db_connect.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,65 +19,31 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<Question> questions = [
-    Question(
-        id: '10',
-        title: 'Whats is Capital City for Pahang ?',
-        options: {'Pulau Pinang': false, 'Perlis': false, 'Kuantan': true, 'Bentong': false}),
-    Question(
-        id: '11',
-        title: ' Is durian a local fruit for the state of Pahang ?',
-        options: {'No': false, 'Yes': true, 'I think so': false, 'I dont know': false}),
-         Question(
-        id: '12',
-        title: ' What is 2 + 200 ?',
-        options: {'2001': false, '2002': true, '198': false, '2003': false}),
-         Question(
-        id: '13',
-        title: ' What is 2 + 2 ?',
-        options: {'8': false, '10': false, '4': true, '2': false}),
-         Question(
-        id: '14',
-        title: ' Whats is the friends of Jerry ?',
-        options: {'Tom': true, 'Kasim': false, 'Lily': false, 'Black': false}),
-         Question(
-        id: '15',
-        title: ' Whats is brother of Upin ?',
-        options: {'Uncle Muthu': false, 'Kak Ros': false, 'Opah': false, 'Ipin': true}),
-         Question(
-        id: '16',
-        title: ' Whats is 200 + 400 ?',
-        options: {'900': false, '10000': false, '500': false, '600': true}),
-         Question(
-        id: '17',
-        title: ' What is 2 + 10 ?',
-        options: {'14': false, '10': false, '12': true, '13': false}),
-         Question(
-        id: '18',
-        title: ' Ali had 2 apples, then he gave 1 apple to muhammad so how many apples does Ali have now ?',
-        options: {'8': false, '10': false, '1': true, '2': false}),
-         Question(
-        id: '19',
-        title: ' What is the shape of an ice cream cone ?',
-        options: {'Cone': true, 'Pyramid': false, 'Sphere': false, 'Sylinder': false}),
-         Question(
-        id: '20',
-        title: ' Do you like this app?',
-        options: {'No': true, 'Yes': true, 'I think so': true, 'I dont know': true}),
-  ];
+  var db = DBConnect();
+  late Future<List<Question>> questions;
+
+  Future<List<Question>> getData() async {
+    return db.fetchQuestions();
+  }
+
+  @override
+  void initState() {
+    questions = getData();
+    super.initState();
+  }
 
   int currentIndex = 0;
   int score = 0;
   bool isOptionSelected = false;
   bool isAlreadySelected = false;
 
-  void nextQuestion() {
-    if (currentIndex == questions.length - 1) {
+  void nextQuestion(int questionLength) {
+    if (currentIndex == questionLength - 1) {
       showDialog(
         context: context,
         builder: (ctx) => ResultBox(
           score: score,
-          totalQuestions: questions.length,
+          totalQuestions: questionLength,
           onPressed: resetQuiz,
         ),
       );
@@ -116,56 +87,95 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: background,
-      appBar: AppBar(
-        title: const Text('Quiz App'),
-        backgroundColor: background,
-        shadowColor: Colors.transparent,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(18.0),
-            child: Text(
-              'Score: $score',
-              style: const TextStyle(fontSize: 18.0),
-            ),
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-        child: Column(
-          children: [
-            QuestionWidget(
-              question: questions[currentIndex].title,
-              indexAction: currentIndex,
-              totalQuestions: questions.length,
-            ),
-            const Divider(color: neutral),
-            const SizedBox(height: 25.0),
-            ...questions[currentIndex].options.entries.map((entry) {
-              return GestureDetector(
-                onTap: () => checkAnswer(entry.value),
-                child: OptionCard(
-                  option: entry.key,
-                  color: isOptionSelected
-                      ? entry.value
-                          ? correct
-                          : incorrect
-                      : neutral,
+    return FutureBuilder(
+      future: questions,
+      builder: (ctx, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.hasError) {
+            return Center(
+              child: Text('${snapshot.error}'),
+            );
+          } else if (snapshot.hasData) {
+            var extractedData = snapshot.data as List<Question>;
+            return Scaffold(
+              backgroundColor: background,
+              appBar: AppBar(
+                title: const Text('Quiz App'),
+                backgroundColor: background,
+                shadowColor: Colors.transparent,
+                actions: [
+                  Padding(
+                    padding: const EdgeInsets.all(18.0),
+                    child: Text(
+                      'Score: $score',
+                      style: const TextStyle(fontSize: 18.0),
+                    ),
+                  ),
+                ],
+              ),
+              body: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Column(
+                  children: [
+                    QuestionWidget(
+                      question: extractedData[currentIndex].title,
+                      indexAction: currentIndex,
+                      totalQuestions: extractedData.length,
+                    ),
+                    const Divider(color: neutral),
+                    const SizedBox(height: 25.0),
+                    ...extractedData[currentIndex].options.entries.map((entry) {
+                      return GestureDetector(
+                        onTap: () => checkAnswer(entry.value),
+                        child: OptionCard(
+                          option: entry.key,
+                          color: isOptionSelected
+                              ? entry.value
+                                  ? correct
+                                  : incorrect
+                              : neutral,
+                        ),
+                      );
+                    }),
+                  ],
                 ),
-              );
-            }).toList(),
-          ],
-        ),
-      ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-        child: NextButton(
-          nextQuestion: nextQuestion,
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+              ),
+              floatingActionButton: GestureDetector(
+                onTap: () => nextQuestion(extractedData.length),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  child: NextButton(),
+                ),
+              ),
+              floatingActionButtonLocation:
+                  FloatingActionButtonLocation.centerFloat,
+            );
+          }
+        } else {
+          return  Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const CircularProgressIndicator(),
+                const SizedBox(height: 20.0),
+                Text(
+                  'Please wait while Questions are loading...',
+                  style: TextStyle(
+                    color: Theme.of(context).primaryColor,
+                    decoration: TextDecoration.none,
+                    fontSize: 14.0,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return const Center(
+          child: Text('No data'),
+        );
+      },
     );
   }
 }
